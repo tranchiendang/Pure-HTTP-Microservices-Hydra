@@ -1,16 +1,32 @@
-import http from 'http';
-const httpServer = http.createServer(serverHandler);
+const connect = require("connect");
+const http = require("http");
+const bodyParser = require("body-parser");
+
+const app = connect();
+app.use(bodyParser.urlencoded({'extended': false}));
+
+app.use(function(req, res, next){
+  serverHandler(req, res);
+  next();
+});
+
+const mimeTypes = {
+    '.html': 'text/html',
+    '.js': 'text/javascript',
+    '.css': 'text/css',
+    '.json': 'application/json'
+};
 
 function serverHandler(req, res){
-  sendResponse(res, {"bla bla bla!!!"});
+  sendResponse(res, "bla bla bla!!!");
 };
 
 function sendResponse(res, content){
-  res.writeHead(200, {'Content-Type': 'application/json'});
+  let contentType = mimeTypes['.json'];
+
+  res.writeHead(200, {'Content-Type': contentType});
   res.write(JSON.stringify(content));
   res.end();
 }
 
-httpServer.listen(3000, () => {
-  console.log("Server is listening on port 3000!");
-});
+const httpServer = http.createServer(app).listen(3000);
